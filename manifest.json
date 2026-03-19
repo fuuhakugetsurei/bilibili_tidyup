@@ -2,7 +2,7 @@
   "name": "Bilibili 收藏管理",
   "short_name": "B站收藏",
   "description": "管理你的 Bilibili 收藏影片，支援標籤分類與離線瀏覽",
-  "start_url": "/",
+  "start_url": "/bilibili_tidyup/", 
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#FB7299",
