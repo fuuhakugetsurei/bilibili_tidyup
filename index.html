@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB7299" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="B站收藏" />
+  <title>Bilibili 收藏管理</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 24 24"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/></svg>
+  </div>
+  <span class="topbar-title">B站收藏</span>
+  <span class="topbar-count" id="topbar-count"></span>
+  <button class="topbar-select-btn" id="topbar-select-btn" onclick="toggleSelectMode()">選取</button>
+</header>
+
+<div class="searchbar">
+  <div class="search-inner">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg>
+    <input id="search-input" type="search" placeholder="搜尋影片、標籤、BV號..." autocomplete="off" />
+  </div>
+</div>
+
+<div class="tag-strip" id="tag-strip"></div>
+<div id="sort-bar" class="sort-bar"></div>
+
+<main class="main">
+  <div class="video-grid" id="video-grid"></div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <p>沒有符合條件的影片</p>
+  </div>
+</main>
+
+<!-- Batch action bar (shows in select mode) -->
+<div id="batch-bar" class="batch-bar" style="display:none">
+  <button class="batch-cancel" onclick="exitSelectMode()">✕</button>
+  <span id="batch-count" class="batch-count">點選影片</span>
+  <div class="batch-actions">
+    <button class="batch-btn" onclick="selectAll()">全選</button>
+    <button class="batch-btn primary" onclick="openBatchTagSheet()">編輯標籤</button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item active" data-tab="library" onclick="setTab('library')">
+    <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+    收藏庫
+  </div>
+  <div class="nav-item" data-tab="import" onclick="setTab('import')">
+    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+    匯入
+  </div>
+  <div class="nav-item" data-tab="add" onclick="setTab('add')">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+    新增
+  </div>
+</nav>
+
+<!-- Detail Sheet -->
+<div class="sheet-overlay" id="sheet-detail" onclick="if(event.target===this)closeSheet('sheet-detail')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body">
+      <img class="detail-cover" id="detail-cover" src="" alt="" onerror="this.style.display='none'" />
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-bvid" id="detail-bvid"></div>
+      <div class="detail-meta" id="detail-meta"></div>
+      <div class="detail-tags" id="detail-tags"></div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" id="detail-open-btn" style="flex:2">在 B 站開啟</button>
+        <button class="btn btn-ghost" id="detail-edit-btn">編輯標籤</button>
+        <button class="btn btn-danger-ghost" id="detail-delete-btn">刪除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Tags Sheet (single + batch) -->
+<div class="sheet-overlay" id="sheet-edit" onclick="if(event.target===this)closeSheet('sheet-edit')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="batch-mode-label">編輯標籤</div>
+    <div class="sheet-body">
+
+      <!-- Current tags -->
+      <div class="tag-pills" id="edit-tag-pills"></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input class="tag-input-sm" id="edit-tag-input" placeholder="輸入標籤後按 Enter" style="flex:1;width:auto" />
+      </div>
+
+      <!-- Existing tags as clickable suggestions -->
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">點選現有標籤快速套用</div>
+      <div id="tag-suggestions" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px"></div>
+
+      <!-- AI suggest -->
+      <button id="ai-suggest-btn" class="btn btn-ghost" onclick="aiSuggestTags()"
+        style="width:100%;height:40px;font-size:13px;margin-bottom:8px">
+        ✨ 複製影片資訊給 AI 分析
+      </button>
+
+      <!-- AI result area (shown after copy) -->
+      <div id="ai-copy-status" style="display:none;background:var(--surface2);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.7;color:var(--text)">
+        ✓ 已複製！請到
+        <a href="https://claude.ai" target="_blank" style="color:var(--pink);font-weight:500">claude.ai ↗</a>
+        貼上後送出，把 Claude 回覆的 JSON 貼到下方：
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input id="ai-result-input" class="form-input" placeholder='例如：["英語學習","遊戲攻略"]' style="flex:1;font-size:13px;height:36px" />
+          <button class="btn-ghost" onclick="applyAiResult()" style="height:36px;padding:0 12px;white-space:nowrap;font-size:13px;flex-shrink:0">套用</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px"></div>
+
+      <!-- Single video actions -->
+      <div id="single-tag-actions" style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeSheet('sheet-edit')" style="flex:1">取消</button>
+        <button class="btn btn-primary" onclick="saveEditTags()" style="flex:2">儲存</button>
+      </div>
+
+      <!-- Batch actions -->
+      <div id="batch-tag-actions" style="display:none;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="closeSheet('sheet-edit')" style="flex:1">取消</button>
+          <button class="btn btn-ghost" onclick="addBatchTags()" style="flex:1.5;font-size:13px">新增到已有標籤</button>
+          <button class="btn btn-primary" onclick="saveBatchTags()" style="flex:1.5;font-size:13px">取代全部標籤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Sheet -->
+<div class="sheet-overlay" id="sheet-import" onclick="if(event.target===this)closeSheet('sheet-import')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">匯入 B 站收藏夾</div>
+    <div class="sheet-body">
+      <div class="hint-box">
+        <strong>步驟一：</strong>輸入 UID 查詢公開收藏夾<br>
+        <strong>步驟二：</strong>選擇收藏夾<br>
+        <strong>步驟三：</strong>按「開始匯入」
+      </div>
+
+      <details style="margin-bottom:14px;border:1px solid var(--border);border-radius:10px;padding:0 12px">
+        <summary style="font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;padding:10px 0;list-style:none;display:flex;align-items:center;gap:6px">⚙️ 自訂代理設定</summary>
+        <div style="padding-bottom:12px">
+          <div class="hint-box" style="border-left-color:#378ADD;margin-bottom:10px">
+            部署 <strong>Cloudflare Worker</strong>（免費）：到 <code>workers.cloudflare.com</code> 建立帳號 → 貼入下方程式碼 → 部署 → 填入 Worker 網址
+          </div>
+          <details style="margin-bottom:10px">
+            <summary style="font-size:12px;color:var(--pink);cursor:pointer;padding:4px 0">展開 Worker 程式碼</summary>
+            <pre style="font-size:11px;font-family:monospace;background:var(--surface2);padding:10px;border-radius:8px;overflow-x:auto;margin-top:8px;color:var(--text);line-height:1.6;white-space:pre-wrap">export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const target = url.searchParams.get('url');
+    if (!target) return new Response('Missing url', { status: 400 });
+    const res = await fetch(decodeURIComponent(target), {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.bilibili.com' }
+    });
+    return new Response(await res.text(), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
+  }
+};</pre>
+            <button class="btn-ghost" onclick="copyWorkerCode(event)" style="margin-top:6px;height:28px;font-size:12px">複製程式碼</button>
+          </details>
+          <label class="form-label">Worker 網址</label>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" id="custom-proxy-input" placeholder="https://xxx.workers.dev/?url={url}" style="flex:1;font-size:13px" />
+            <button class="btn-ghost" onclick="saveCustomProxy()" style="height:44px;padding:0 14px;white-space:nowrap">儲存</button>
+          </div>
+          <div id="proxy-save-status" style="font-size:12px;color:var(--pink);margin-top:5px;min-height:16px"></div>
+        </div>
+      </details>
+
+      <div class="form-group">
+        <label class="form-label">B 站 UID</label>
+        <div style="display:flex;gap:8px">
+          <input class="form-input" id="import-uid" placeholder="例如：686127" style="flex:1" />
+          <button class="btn-ghost" onclick="lookupFolders()" style="height:44px;padding:0 16px;white-space:nowrap">查詢</button>
+        </div>
+      </div>
+      <div id="folders-result" style="margin-bottom:14px"></div>
+      <div class="form-group">
+        <label class="form-label">收藏夾 ID（media_id）</label>
+        <input class="form-input mono" id="import-media-id" placeholder="點「選用」自動填入，或手動輸入" />
+        <div id="selected-folder-name" style="font-size:12px;color:var(--pink);margin-top:5px"></div>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;font-size:14px;color:var(--text)">
+        <input type="checkbox" id="import-fetch-tags" checked style="width:18px;height:18px;accent-color:var(--pink);cursor:pointer" />
+        同時抓取 UP主標籤（每部約 0.6 秒）
+      </label>
+
+      <button class="btn btn-primary" id="import-btn" onclick="startImport()">開始匯入</button>
+      <div id="import-status" class="status-box"></div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">補抓 UP主標籤</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">針對已匯入但沒有 UP主標籤的影片補抓，可暫停繼續。</div>
+        <button class="btn btn-ghost" id="backfill-btn" onclick="startBackfill()" style="width:100%;height:44px;font-size:14px;font-weight:500">補抓 UP主標籤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Sheet -->
+<div class="sheet-overlay" id="sheet-add" onclick="if(event.target===this)closeSheet('sheet-add')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">手動新增影片</div>
+    <div class="sheet-body">
+      <div class="form-group">
+        <label class="form-label">B站連結或 BV 號</label>
+        <input class="form-input" id="add-url" placeholder="https://www.bilibili.com/video/BV..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">影片標題</label>
+        <input class="form-input" id="add-title" placeholder="輸入標題" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">標籤</label>
+        <div class="tag-pills" id="new-tag-pills"></div>
+        <input class="tag-input-sm" id="new-tag-input-sm" placeholder="輸入後按 Enter" style="width:100%;border-radius:8px" />
+      </div>
+      <button class="btn btn-primary" onclick="addManual()">新增收藏</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="app.js"></script>
+</body>
+</html>
