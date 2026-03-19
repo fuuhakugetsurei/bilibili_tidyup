@@ -1,11 +1,12 @@
-const CACHE_NAME = 'bili-fav-v1';
+const CACHE_NAME = 'bili-fav-v2';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json'
+  [span_2](start_span)'./',                // 改為相對路徑[span_2](end_span)
+  [span_3](start_span)'./index.html',      // 加個點[span_3](end_span)
+  [span_4](start_span)'./style.css',       // 加個點[span_4](end_span)
+  [span_5](start_span)'./app.js',          // 加個點[span_5](end_span)
+  [span_6](start_span)'./manifest.json'    // 加個點[span_6](end_span)
 ];
+
 
 self.addEventListener('install', e => {
   e.waitUntil(
